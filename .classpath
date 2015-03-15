@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="lib/lucene-analyzers-common-5.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/lucene-core-5.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/lucene-demo-5.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/lucene-queryparser-5.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-postagger-3.5.1-javadoc.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-postagger-3.5.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-postagger.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/Users/ahoff_000/Desktop/UCLA/CS_263C/lucene-5.0.0/queryparser/lucene-queryparser-5.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ahoff_000/Desktop/UCLA/CS_263C/lucene-5.0.0/analysis/common/lucene-analyzers-common-5.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ahoff_000/Desktop/UCLA/CS_263C/lucene-5.0.0/core/lucene-core-5.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ahoff_000/Desktop/UCLA/CS_263C/lucene-5.0.0/demo/lucene-demo-5.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/stanford-postagger-2014-10-26/stanford-postagger.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
