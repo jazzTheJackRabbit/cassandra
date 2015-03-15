@@ -19,7 +19,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 public class TemplateSearcher {
 	//Create templates based on a query
 	//@param query: Query to be templated
-	public static void getTemplates(String query, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void getTemplates(String query, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		//Remove any question marks from the query
 		query = query.replace("?","");		
@@ -32,19 +32,19 @@ public class TemplateSearcher {
 		//Find the question type
 		//ASSUMPTION: ONLY ONE QUESTION WORD PER QUERY
 		if(query.contains("how many"))
-			how_many_templates(query,rove_word,templates,weights);
+			how_many_templates(query,rove_word,templates,weights,look_loc);
 		else if(query.contains("how"))
-			how_templates(query,rove_word,templates,weights);
+			how_templates(query,rove_word,templates,weights,look_loc);
 		else if(query.contains("why"))
-			why_templates(query,rove_word,templates,weights);
+			why_templates(query,rove_word,templates,weights,look_loc);
 		else if(query.contains("what"))
-			what_templates(query,rove_word,templates,weights);
+			what_templates(query,rove_word,templates,weights,look_loc);
 		else if(query.contains("who"))
-			who_templates(query,rove_word,templates,weights);
+			who_templates(query,rove_word,templates,weights,look_loc);
 		else if(query.contains("where"))
-			where_templates(query,rove_word,templates,weights);
+			where_templates(query,rove_word,templates,weights,look_loc);
 		else
-			when_templates(query,rove_word,templates,weights);	
+			when_templates(query,rove_word,templates,weights,look_loc);	
 	}	
 		
 	//Find the verb that will be moved throughout the template
@@ -89,7 +89,6 @@ public class TemplateSearcher {
 			  searcher.search(q, collector);
 			  ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
-			  System.out.println("Found " + hits.length + " hits.");
 			  for(int i=0;i<hits.length;++i) 
 			  {
 				  int docId = hits[i].doc;
@@ -101,7 +100,7 @@ public class TemplateSearcher {
 		  return foundDocs;
 	}
 		
-	public static void how_many_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void how_many_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		//Template 1: Existential there
 		String template1 = query.replace("how many ","");
@@ -112,6 +111,7 @@ public class TemplateSearcher {
 		template1 = template1.replace("  ", " ");		
 		templates.add(rove_word + " " + template1);
 		weights.add(1.0);
+		look_loc.add(0);
 		String add_string;
 		for(int i = 0; i < template1.length(); i++)
 		{
@@ -120,19 +120,22 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " " + rove_word + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(0);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " " + rove_word;
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(0);
 			}
 		}
 		
 		//Template 2: Generic Search
 		String template2 = query.replace("how many ","");
 		templates.add(template2);
-		weights.add(0.5);		
+		weights.add(0.5);
+		look_loc.add(1);
 		
 		//Template 3: AND
 		String template3 = query.replace("how many ","");
@@ -146,9 +149,10 @@ public class TemplateSearcher {
 		}
 		templates.add(template3);
 		weights.add(0.1);
+		look_loc.add(0);
 	}
 	
-	public static void how_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void how_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("how ","");
 		
@@ -157,6 +161,7 @@ public class TemplateSearcher {
 		template1 = template1 + " by";		
 		templates.add(rove_word + " " + template1);
 		weights.add(1.0);
+		look_loc.add(2);
 		String add_string;
 		for(int i = 0; i < template1.length(); i++)
 		{
@@ -165,12 +170,14 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " " + rove_word + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " " + rove_word;
 				templates.add(add_string);
 				weights.add(1.0);	
+				look_loc.add(2);
 			}
 		}
 		
@@ -182,6 +189,7 @@ public class TemplateSearcher {
 			template2 = template2 + " by";
 			templates.add(second_rove + " " + template2);
 			weights.add(1.0);
+			look_loc.add(2);
 			for(int i = 0; i < template2.length(); i++)
 			{
 				if(template2.charAt(i) == ' ')
@@ -189,12 +197,14 @@ public class TemplateSearcher {
 					add_string = template2.substring(0,i) + " " + second_rove + template2.substring(i, template2.length());
 					templates.add(add_string);
 					weights.add(1.0);
+					look_loc.add(2);
 				}
 				else if(i == template1.length() - 1)
 				{
 					add_string = template2 + " " + second_rove;
 					templates.add(add_string);
-					weights.add(1.0);				
+					weights.add(1.0);	
+					look_loc.add(2);
 				}
 			}
 		}
@@ -203,6 +213,7 @@ public class TemplateSearcher {
 			template2 = template2 + " by";
 			templates.add(template2);
 			weights.add(1.0);
+			look_loc.add(2);
 		}
 			
 		//Template 3: AND
@@ -216,10 +227,11 @@ public class TemplateSearcher {
 			}
 		}
 		templates.add(template3);
-		weights.add(0.1);	
+		weights.add(0.1);
+		look_loc.add(0);
 	}	
 	
-	public static void what_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void what_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("what ","");
 		
@@ -227,7 +239,8 @@ public class TemplateSearcher {
 		String template1 = query.replace(rove_word, "");
 		//Add without any rove word
 		templates.add(template1);
-		weights.add(1.0);		
+		weights.add(1.0);	
+		look_loc.add(2);
 		template1 = template1.replace("  ", " ");
 		String add_string;
 		//Rove "to be" in several tenses
@@ -238,12 +251,15 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " is " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " was " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " will be " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 		}
 		
@@ -258,10 +274,11 @@ public class TemplateSearcher {
 			}
 		}
 		templates.add(template2);
-		weights.add(0.1);	
+		weights.add(0.1);
+		look_loc.add(0);
 	}
 	
-	public static void why_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void why_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("why ","");
 		
@@ -271,6 +288,7 @@ public class TemplateSearcher {
 		template1 = template1 + " because";
 		templates.add(template1);
 		weights.add(0.8);
+		look_loc.add(2);
 		String add_string;
 		//Rove rove word
 		for(int i = 0; i < template1.length(); i++)
@@ -280,6 +298,7 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " " + rove_word + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 		}
 		
@@ -294,6 +313,7 @@ public class TemplateSearcher {
 				add_string = template2.substring(0,i) + " " + rove_word + template2.substring(i, template2.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 		}
 		
@@ -309,9 +329,10 @@ public class TemplateSearcher {
 		}
 		templates.add(template3);
 		weights.add(0.1);	
+		look_loc.add(0);
 	}
 
-	public static void who_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void who_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("who ","");
 		
@@ -319,10 +340,12 @@ public class TemplateSearcher {
 		String template1 = query;
 		templates.add(template1);
 		weights.add(1.0);
+		look_loc.add(2);
 		//Move rove word to end
 		template1 = template1.replace(rove_word + " ","");
 		templates.add(template1 + " " + rove_word);
 		weights.add(1.0);
+		look_loc.add(2);
 		
 		//Template 2: AND
 		String template2 = query;
@@ -336,9 +359,10 @@ public class TemplateSearcher {
 		}
 		templates.add(template2);
 		weights.add(0.1);
+		look_loc.add(0);
 	}
 
-	public static void where_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void where_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("where ","");
 		
@@ -354,26 +378,31 @@ public class TemplateSearcher {
 			{
 				add_string = template1.substring(0,i) + " is" + template1.substring(i, template1.length());
 				templates.add(add_string);
+				look_loc.add(2);
 				weights.add(1.0);
 				add_string = template1.substring(0,i) + " was" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " will be" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " is";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " was";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " will be";
 				templates.add(add_string);
 				weights.add(1.0);
-				
+				look_loc.add(2);				
 			}
 		}
 		//Rove "to be" + "in" in several tenses
@@ -384,24 +413,30 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " is in" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " was in" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " will be in" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " is in";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " was in";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " will be in";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 		}
 		//Rove "in"
@@ -412,12 +447,14 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " in" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(0.5);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " in";
 				templates.add(add_string);
 				weights.add(0.5);
+				look_loc.add(2);
 			}
 		}
 		
@@ -433,9 +470,10 @@ public class TemplateSearcher {
 		}
 		templates.add(template2);
 		weights.add(0.1);
+		look_loc.add(0);
 	}		
 	
-	public static void when_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights)
+	public static void when_templates(String query, String rove_word, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<Integer> look_loc)
 	{
 		query = query.replace("when ","");
 		
@@ -452,24 +490,30 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " is in " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " was in " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1.substring(0,i) + " will be in " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " is in ";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " was in ";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 				add_string = template1 + " will be in ";
 				templates.add(add_string);
 				weights.add(1.0);
+				look_loc.add(2);
 			}
 		}
 		//Rove "in"
@@ -480,12 +524,14 @@ public class TemplateSearcher {
 				add_string = template1.substring(0,i) + " in " + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(0.5);
+				look_loc.add(2);
 			}
 			else if(i == template1.length() - 1)
 			{
 				add_string = template1 + " in ";
 				templates.add(add_string);
 				weights.add(0.5);
+				look_loc.add(2);
 			}
 		}
 		
@@ -501,6 +547,6 @@ public class TemplateSearcher {
 		}
 		templates.add(template2);
 		weights.add(0.1);
-	}			
-	
+		look_loc.add(0);
+	}				
 }

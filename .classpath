@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/stanford-postagger-3.5.1-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-postagger-3.5.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-postagger.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
