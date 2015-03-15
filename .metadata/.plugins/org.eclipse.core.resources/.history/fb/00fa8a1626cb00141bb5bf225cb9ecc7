@@ -1,0 +1,75 @@
+import java.nio.file.Paths;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+
+import java.io.*;
+import java.util.ArrayList;
+
+/**
+ * This terminal application creates an Apache Lucene index in a folder and adds files into this index
+ * based on the input of the user.
+ */
+public class LuceneTest {
+
+  public static void main(String[] args) throws IOException, ParseException
+  {
+	  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	  StandardAnalyzer analyzer = new StandardAnalyzer();
+	  
+	  //Index the files
+	  Indexer fileIndexer = new Indexer(analyzer);
+	  String indexLocation = fileIndexer.getFiles(br);
+	  
+	  //Get query from user
+	  String query = "Where is the Louvre located?";
+	  
+	  //Create templates
+	  ArrayList<String> templates = new ArrayList<String>();
+	  ArrayList<Double> weights = new ArrayList<Double>();
+	  TemplateSearcher.getTemplates(query,templates,weights);	 
+	  
+	  //Search the files
+	  ArrayList<Document> foundDocs;
+	  ArrayList<String> docs = new ArrayList<String>();
+	  ArrayList<String> search_query = new ArrayList<String>();
+	  search_query.add("");
+	  ArrayList<Double> doc_weights = new ArrayList<Double>();
+	  for(int i = 0; i < templates.size(); i++)
+	  {
+		  search_query.set(0,templates.get(i)); 
+		  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
+		  for(int j = 0; j < foundDocs.size(); i++)
+		  {
+			  docs.add(foundDocs.get(j).get("path"));
+			  doc_weights.add(weights.get(i));
+		  }
+	  }
+	  
+	  
+	  //Get n-grams
+	  //Combine and weight n-grams
+	  //Reweight n-grams based on question rules
+	  //Rank n-grams
+	  //Tile n-grams
+	  //Re-rank n-grams
+	  //Print results
+  }
+}
