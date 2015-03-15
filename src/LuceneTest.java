@@ -22,6 +22,10 @@ import org.apache.lucene.util.Version;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * This terminal application creates an Apache Lucene index in a folder and adds files into this index
@@ -35,36 +39,57 @@ public class LuceneTest {
 	  StandardAnalyzer analyzer = new StandardAnalyzer();
 	  
 	  //Index the files
-	  Indexer fileIndexer = new Indexer(analyzer);
-	  String indexLocation = fileIndexer.getFiles(br);
+	  //Indexer fileIndexer = new Indexer(analyzer);
+	  //String indexLocation = fileIndexer.getFiles(br);
+	  String indexLocation = "C:\\Users\\ahoff_000\\Desktop\\Index";
 	  
 	  //Get query from user
-	  String query = "Where is the Louvre located?";
+	  String query = "Where is the Louvre?";
 	  
 	  //Create templates
 	  ArrayList<String> templates = new ArrayList<String>();
 	  ArrayList<Double> weights = new ArrayList<Double>();
-	  TemplateSearcher.getTemplates(query,templates,weights);	 
+	  TemplateSearcher.getTemplates(query,templates,weights);	
 	  
-	  //Search the files
+	  //Array list for storing the files from each *individual* search
 	  ArrayList<Document> foundDocs;
-	  ArrayList<String> docs = new ArrayList<String>();
+	  //Array list storing each *individual* template (one search at a time)
 	  ArrayList<String> search_query = new ArrayList<String>();
 	  search_query.add("");
+	  
+	  //Array list containing the returned document
+	  ArrayList<String> docs = new ArrayList<String>();
+	  //Corresponds to 'docs', stores the associated template that found the doc
+	  ArrayList<String> doc_templates = new ArrayList<String>();
+	  //Corresponds to 'docs', stores the associated weight for the template that found the doc
 	  ArrayList<Double> doc_weights = new ArrayList<Double>();
+	  
+	  //Search the files
 	  for(int i = 0; i < templates.size(); i++)
 	  {
 		  search_query.set(0,templates.get(i)); 
 		  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
-		  for(int j = 0; j < foundDocs.size(); i++)
+		  for(int j = 0; j < foundDocs.size(); j++)
 		  {
 			  docs.add(foundDocs.get(j).get("path"));
+			  doc_templates.add(templates.get(i));
 			  doc_weights.add(weights.get(i));
 		  }
 	  }
 	  
+	  //Lists storing the ngrams and their corresponding weights
+	  ArrayList<String> ngrams = new ArrayList<String>();
+	  ArrayList<Double> ngram_weights = new ArrayList<Double>();
 	  
 	  //Get n-grams
+	  NGramMinder.mine(docs, doc_templates, doc_weights, ngrams, ngram_weights);
+	  
+	  //for(int i = 0; i < templates.size(); i++)
+		//  System.out.println(templates.get(i));
+		  
+	  for(int i = 0; i < ngrams.size(); i++)
+		  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
+	  
 	  //Combine and weight n-grams
 	  //Reweight n-grams based on question rules
 	  //Rank n-grams

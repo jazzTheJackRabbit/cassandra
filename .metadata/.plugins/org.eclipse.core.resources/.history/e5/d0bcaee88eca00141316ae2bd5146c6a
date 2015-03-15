@@ -1,0 +1,17 @@
+import java.util.ArrayList;
+
+public class NGramMinder {
+	public static void mine(ArrayList<String> docs, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<String> ngrams)
+	{
+		ArrayList<String> ngrams = new ArrayList<String>();
+		ArrayList<Double> ngram_weights = new ArrayList<Double>();
+		
+		//Loop through each document (sometimes more than once if it appeared for multiple templates)
+		for(int i = 0; i < docs.size(); i++)
+		{
+			//Split the template by 'AND's
+			//Search for an *exact* match of each template subset
+			//If found, create 6 1-grams, 3 from each side and add them to the list of n-grams, along with their corresponding weights
+		}
+	}
+}

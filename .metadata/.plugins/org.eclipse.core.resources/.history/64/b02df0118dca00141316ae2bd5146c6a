@@ -1,0 +1,3 @@
+public class NGramMinder {
+	public static void mine(ArrayList<String> docs, ArrayList<String> templates, ArrayList<Double> weights, ArrayList<String> ngrams)
+}

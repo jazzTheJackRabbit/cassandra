@@ -89,7 +89,6 @@ public class TemplateSearcher {
 			  searcher.search(q, collector);
 			  ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
-			  System.out.println("Found " + hits.length + " hits.");
 			  for(int i=0;i<hits.length;++i) 
 			  {
 				  int docId = hits[i].doc;
