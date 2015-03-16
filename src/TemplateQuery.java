@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TemplateQuery {
+public class TemplateQuery {	
 	public String queryString;
 	public double weight;
 	public int lookLocation;
@@ -12,8 +12,8 @@ public class TemplateQuery {
 	public ArrayList<SearchResult> topFetchedDocuments;	
 	public ArrayList<ProcessedAnswer> topProcessedAnswers;
 	
-	public HashMap<String, Integer> ngramCountMap;
-	public ArrayList<String> ngramKeys;
+	public static HashMap<String, Integer> ngramCountMap;
+	public static ArrayList<String> ngramKeys;
 	
 	//These are the templates which are essentially the queries for the search engine.
 	public TemplateQuery(){
@@ -24,8 +24,8 @@ public class TemplateQuery {
 		this.topFetchedDocuments = new ArrayList<SearchResult>();							
 		this.topProcessedAnswers = new ArrayList<ProcessedAnswer>();
 		
-		this.ngramCountMap = new HashMap<String, Integer>();
-		this.ngramKeys = new ArrayList<String>();
+		TemplateQuery.ngramCountMap = new HashMap<String, Integer>();
+		TemplateQuery.ngramKeys = new ArrayList<String>();
 	}
 	
 	public void mineNGrams(){
@@ -47,7 +47,7 @@ public class TemplateQuery {
 			//ASSUMPTION: All characters were set to lowercase before adding the 'AND' to the template
 			
 			curr_template = templateQuery.queryString;
-			String currentDocumentContent = templateQuery.topFetchedDocuments.get(i).Description;
+			SearchResult currentDocumentContent = templateQuery.topFetchedDocuments.get(i);
 			
 			pos = 0;
 			begin = 0;
@@ -70,20 +70,14 @@ public class TemplateQuery {
 				pos++;
 			}
 			
-			getNGrams(templateQuery, currentDocumentContent);
+			this.getNGrams(templateQuery, currentDocumentContent);
 			
-			//Search for an *exact* match of each template subset
-//			for(int j = 0; j < search_strings.size(); j++)
-//			{
-////						if(search_strings.get(i) != " the" && search_strings.get(i).length() > 2)
-////							getNGrams(docs.get(i), ngrams, ngram_weights, ngram_docs, weights.get(i),search_strings.get(j), look_loc.get(i));
-//			}
 		}
 	}
 	
-	public static void getNGrams(TemplateQuery templateQuery, String currentDocumentContent){
+	public void getNGrams(TemplateQuery templateQuery, SearchResult currentDocumentContent){
 		//Get file
-		String str = currentDocumentContent.toLowerCase();
+		String str = currentDocumentContent.Description.toLowerCase();
 		String template = templateQuery.queryString;
 		int look_loc = templateQuery.lookLocation;
 		double weight = templateQuery.weight;
@@ -102,7 +96,7 @@ public class TemplateQuery {
 		//If the template is not found, add nothing
 		if(!m.find())
 			return;
-		System.out.println("Found match in document for:"+template);
+		System.out.println("Found match in document:"+currentDocumentContent.ID+" for:"+template);
 		//System.out.println(str.substring(m.start(),m.end() - 1)); 
 		  
 		int pre_start = m.start();
@@ -157,14 +151,16 @@ public class TemplateQuery {
 						
 						processedAnswer.weight = weight;
 						templateQuery.topProcessedAnswers.add(processedAnswer);
-												
+						this.addNGramToHashMap(processedAnswer);
+						
 //								ngram_docs.add(path);
 						
 						if(count != 0)
 						{
 							processedAnswer = new ProcessedAnswer(ngram_holder);
 							processedAnswer.weight = weight;
-							templateQuery.topProcessedAnswers.add(processedAnswer);							
+							templateQuery.topProcessedAnswers.add(processedAnswer);
+							this.addNGramToHashMap(processedAnswer);
 //									ngram_docs.add(path);
 							
 						}
@@ -193,6 +189,7 @@ public class TemplateQuery {
 						processedAnswer = new ProcessedAnswer(str.substring(post_start, post_end));
 						processedAnswer.weight = weight;
 						templateQuery.topProcessedAnswers.add(processedAnswer);
+						this.addNGramToHashMap(processedAnswer);
 						ngram_holder += str.substring(post_start, post_end) + " ";						
 //								ngram_docs.add(path);
 						
@@ -201,6 +198,7 @@ public class TemplateQuery {
 							processedAnswer = new ProcessedAnswer(ngram_holder);
 							processedAnswer.weight = weight;
 							templateQuery.topProcessedAnswers.add(processedAnswer);
+							this.addNGramToHashMap(processedAnswer);
 //									ngram_docs.add(path);
 							
 						}
@@ -214,4 +212,16 @@ public class TemplateQuery {
 		}
 		System.out.println("Before Quitting");
 	}	
+	
+	public void addNGramToHashMap(ProcessedAnswer processedAnswer){
+		if(TemplateQuery.ngramCountMap.containsKey(processedAnswer.content)){
+			String key = processedAnswer.content;
+			TemplateQuery.ngramCountMap.put(key, TemplateQuery.ngramCountMap.get(processedAnswer.content) + 1); 
+		}
+		else{
+			String key = processedAnswer.content;
+			TemplateQuery.ngramCountMap.put(key, 1);
+			TemplateQuery.ngramKeys.add(key);
+		}
+	}
 }
