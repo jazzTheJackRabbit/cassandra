@@ -15,6 +15,15 @@ public class TemplateQuery {
 	public static HashMap<String, Integer> ngramCountMap;
 	public static ArrayList<String> ngramKeys;
 	
+	public static String[] stopwords = 
+	{ 
+		"a", "an", "and", "are", "as", "at", "be", "but", "by",
+		"for", "if", "in", "into", "is", "it",
+		"no", "not", "of", "on", "or", "such",
+		"that", "the", "their", "then", "there", "these",
+		"they", "this", "to", "was", "will", "with"
+	};
+	
 	//These are the templates which are essentially the queries for the search engine.
 	public TemplateQuery(){
 		this.queryString = "";
@@ -169,7 +178,6 @@ public class TemplateQuery {
 			}  
 		}
 		
-		
 		//Get 3 strings after
 		count = 0;
 		ngram_holder = "";
@@ -181,22 +189,22 @@ public class TemplateQuery {
 				if(post_end == str.length() - 1 || str.charAt(post_end) == ' ')
 				{
 					processedAnswer = new ProcessedAnswer(str.substring(post_start, post_end));
-					processedAnswer.weight = weight;
-					templateQuery.topProcessedAnswers.add(processedAnswer);
-					this.addNGramToHashMap(processedAnswer);
-					ngram_holder += str.substring(post_start, post_end) + " ";						
-//							ngram_docs.add(path);
-						
-					if(count != 0)
+					if(!checkStopWord(processedAnswer.content))
 					{
-						processedAnswer = new ProcessedAnswer(ngram_holder);
 						processedAnswer.weight = weight;
 						templateQuery.topProcessedAnswers.add(processedAnswer);
 						this.addNGramToHashMap(processedAnswer);
-//								ngram_docs.add(path);
+						ngram_holder += str.substring(post_start, post_end) + " ";	
 							
+						if(count != 0)
+						{
+							processedAnswer = new ProcessedAnswer(ngram_holder);
+							processedAnswer.weight = weight;
+							templateQuery.topProcessedAnswers.add(processedAnswer);
+							this.addNGramToHashMap(processedAnswer);
+								
+						}
 					}
-					
 					count++;
 					post_start = post_end + 1;
 				}
@@ -220,8 +228,11 @@ public class TemplateQuery {
 	
 	public static boolean checkStopWord(String str)
 	{
-		if(str == "is" || str == "the" || str == "in" || str == "a")
-			return true;
+		for(int i = 0; i < stopwords.length; i++)
+		{
+			if(str.equals(stopwords[i]))
+				return true;
+		}
 		return false;
 	}
 	
