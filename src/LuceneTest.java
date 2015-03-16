@@ -40,12 +40,7 @@ import org.apache.commons.io.FileUtils;
 public class LuceneTest {
 	
   public static void main(String[] args) throws IOException, ParseException
-  {	  
-	  //Index the files
-//	  Indexer fileIndexer = new Indexer(analyzer);
-//	  String indexLocation = fileIndexer.getFiles(br);
-//	  String indexLocation = "lucene-index/";
-	  
+  {	   	  
 	  //Get query from user	  
 	  TREC trecParser = new TREC();
 	  ArrayList<Target> TRECQueries = trecParser.parseXML();
@@ -54,7 +49,9 @@ public class LuceneTest {
 		  ArrayList<String> querySetForEachTarget = trecQueryTarget.questions;
 		  for (String primaryUnformulatedQuery : querySetForEachTarget){
 			  reformulatePrimaryQueryAndFindAnswer(primaryUnformulatedQuery);
+			  break;
 		  }
+		  break;		  
 	  }
   }
   
@@ -119,30 +116,34 @@ public class LuceneTest {
 		  
 	  }
 	  else{		  
-		  for(int i = 0; i < templates.size(); i++)
-		  {
-			  search_query.set(0,templates.get(i)); 
-			  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
-			  for(int j = 0; j < foundDocs.size(); j++)
-			  {
-				  docs.add(foundDocs.get(j).get("path"));
-				  doc_templates.add(templates.get(i));
-				  doc_weights.add(weights.get(i));
-				  doc_look_locs.add(look_locs.get(i));
-			  }
-		  }
-		  
-		  //Lists storing the ngrams and their corresponding weights
-		  ArrayList<String> ngrams = new ArrayList<String>();
-		  ArrayList<Double> ngram_weights = new ArrayList<Double>();
-		  //List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
-		  ArrayList<String> ngram_docs = new ArrayList<String>();
-		  
-		  //Get n-grams
-		  NGramMinder.mine(docs, doc_templates, doc_weights, ngrams, ngram_weights, ngram_docs, doc_look_locs);
-			  
-		  for(int i = 0; i < ngram_weights.size(); i++)
-			  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
+//		  for(int i = 0; i < templates.size(); i++)
+//		  {
+//			//Index the files
+////			  Indexer fileIndexer = new Indexer(analyzer);
+////			  String indexLocation = fileIndexer.getFiles(br);
+//			  String indexLocation = "lucene-index/";
+//			  search_query.set(0,templates.get(i)); 
+//			  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
+//			  for(int j = 0; j < foundDocs.size(); j++)
+//			  {
+//				  docs.add(foundDocs.get(j).get("path"));
+//				  doc_templates.add(templates.get(i));
+//				  doc_weights.add(weights.get(i));
+//				  doc_look_locs.add(look_locs.get(i));
+//			  }
+//		  }
+//		  
+//		  //Lists storing the ngrams and their corresponding weights
+//		  ArrayList<String> ngrams = new ArrayList<String>();
+//		  ArrayList<Double> ngram_weights = new ArrayList<Double>();
+//		  //List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
+//		  ArrayList<String> ngram_docs = new ArrayList<String>();
+//		  
+//		  //Get n-grams
+//		  NGramMinder.mine(docs, doc_templates, doc_weights, ngrams, ngram_weights, ngram_docs, doc_look_locs);
+//			  
+//		  for(int i = 0; i < ngram_weights.size(); i++)
+//			  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
 	  }	  
 	  
   }
