@@ -40,20 +40,31 @@ import org.apache.commons.io.FileUtils;
 public class LuceneTest {
 	
   public static void main(String[] args) throws IOException, ParseException
-  {
+  {	  
+	  //Index the files
+//	  Indexer fileIndexer = new Indexer(analyzer);
+//	  String indexLocation = fileIndexer.getFiles(br);
+//	  String indexLocation = "lucene-index/";
+	  
+	  //Get query from user	  
+	  TREC trecParser = new TREC();
+	  ArrayList<Target> TRECQueries = trecParser.parseXML();
+	  
+	  for (Target trecQueryTarget : TRECQueries){
+		  ArrayList<String> querySetForEachTarget = trecQueryTarget.questions;
+		  for (String primaryUnformulatedQuery : querySetForEachTarget){
+			  reformulatePrimaryQueryAndFindAnswer(primaryUnformulatedQuery);
+		  }
+	  }
+  }
+  
+  public static void reformulatePrimaryQueryAndFindAnswer(String primaryQuery){
 	  boolean useWebSearch = true;
 	  
 	  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 	  StandardAnalyzer analyzer = new StandardAnalyzer();
 	  
-	  //Index the files
-//	  Indexer fileIndexer = new Indexer(analyzer);
-//	  String indexLocation = fileIndexer.getFiles(br);
-	  String indexLocation = "lucene-index/";
-	  
-	  //Get query from user
-	  String query = "Where is the Louvre?";
-	  
+	  String query = primaryQuery;
 	  
 	  //Create templates, their weights, and where to search (i.e. left or right of the template)
 	  ArrayList<String> templates = new ArrayList<String>();

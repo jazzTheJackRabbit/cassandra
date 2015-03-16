@@ -11,18 +11,14 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 public class TREC {
-	public String trecQueryPath;
 	
-	public TREC(String queryListPath){
-		this.trecQueryPath = queryListPath;
+	public TREC(){
+		
 	}
 	
-	public static void main(String[] args){
-		parseXML();
-	}
-	
-	public static void parseXML(){
+	public ArrayList<Target> parseXML(){
 		BufferedReader br;
+		ArrayList<Target> targets = new ArrayList<Target>();
 		try {
 			br = new BufferedReader(new FileReader("eval/QA2007_testset.xml"));	    
 	        StringBuilder sb = new StringBuilder();
@@ -36,8 +32,7 @@ public class TREC {
 	        String everything = sb.toString();
 	        br.close();	    	    
 	    
-			String html = everything.toString();
-			ArrayList<Target> targets = new ArrayList<Target>();
+			String html = everything.toString();			
 		    Document doc = Jsoup.parse(html, "", Parser.xmlParser());
 		    for (Element e : doc.select("target")) {
 		    	Elements questionsXML = e.getElementsByTag("q");
@@ -47,7 +42,7 @@ public class TREC {
 		    		if(question.attr("type").contains("FACTOID")){		    			
 		    			String questionString = question.text().toLowerCase();
 		    			
-		    			String coreferenceResolvedQuestion = naiveCoreferenceResolution(target, questionString);
+		    			String coreferenceResolvedQuestion = this.naiveCoreferenceResolution(target, questionString);
     					System.out.println(coreferenceResolvedQuestion);		    			
 
 		    			target.questions.add(coreferenceResolvedQuestion);
@@ -55,8 +50,7 @@ public class TREC {
 		    		}
 		    	}		      
 		    	targets.add(target);
-		    }
-		    System.out.println("");
+		    }		    		  
 		}
 		catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -66,9 +60,10 @@ public class TREC {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		return targets;
 	}
 	
-	public static String naiveCoreferenceResolution(Target target,String question){		
+	public String naiveCoreferenceResolution(Target target,String question){		
 		String[] pronounsList = {"he","she","they","it","his","him","her","its","hers","their","them"};
 		StringBuilder coreferenceResolvedQuestion = null;
 		for(String pronoun : pronounsList){
