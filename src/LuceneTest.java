@@ -24,7 +24,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -101,6 +103,8 @@ public class LuceneTest {
 		  
 		  TreeMap<String, Integer> rankedNGrams = sortHashMap(TemplateQuery.ngramCountMap);
 		  System.out.println(rankedNGrams);
+		  HashMap<String,Double> tiledNGrams = tileNGrams(rankedNGrams);
+		  System.out.println("Tiled N-Grams: " + tiledNGrams);
 		  
 	  }
 	  else{		  
@@ -130,12 +134,6 @@ public class LuceneTest {
 			  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
 	  }	  
 	  
-	  //Combine and weight n-grams
-	  //Reweight n-grams based on question rules
-	  //Rank n-grams
-	  //Tile n-grams
-	  //Re-rank n-grams
-	  //Print results
   }
   
   public static TreeMap<String, Integer> sortHashMap(HashMap<String, Integer> hashMap){
@@ -151,6 +149,179 @@ public class LuceneTest {
       
       return sorted_map;
   }
+  
+  public static HashMap<String, Double> tileNGrams(TreeMap<String, Integer> treeMap) {
+	  //Create a list of ProcessedAnswers to store all ngrams
+	  ArrayList<ProcessedAnswer> ngrams = new ArrayList<ProcessedAnswer>();
+	  
+	  //Store all keys and scores (NOT WEIGHTS) in ngrams
+	  for(Map.Entry<String,Integer> entry : treeMap.entrySet())
+	  {
+		  ProcessedAnswer add_processedAnswer = new ProcessedAnswer(entry.getKey());
+		  add_processedAnswer.score = entry.getValue();
+		  ngrams.add(add_processedAnswer);
+	  }
+	  
+	  //Loop through every key
+	  for(int i = 0; i < ngrams.size(); i++)
+	  {
+		  //Loop through every other key
+		  for(int j = 0; j < ngrams.size(); j++)
+		  {	  
+			  //Check if either string is a subset of the other
+			  if(i < ngrams.size() && j < ngrams.size())
+				  checkSubstring(ngrams,i,j);
+			  
+			  if(i < ngrams.size() && j < ngrams.size())
+				  checkSubstring(ngrams,j,i);
+			  
+			  //Check if there is overlap within the strings
+			  if(i < ngrams.size() && j < ngrams.size())
+				  checkOverlap(ngrams,i,j);
+			  if(i < ngrams.size() && j < ngrams.size())
+				  checkOverlap(ngrams,j,i);  
+		  }
+	  }
+	  
+	  //Create a new hashmap
+	  HashMap<String,Double> tiled_map = new HashMap<String,Double>();
+      
+	  //Add each processed answer to the treemap
+	  for(int i = 0; i < ngrams.size(); i++)
+		  tiled_map.put(ngrams.get(i).content,ngrams.get(i).score);
+	  
+	  //Return the new hashmap
+	  return tiled_map;
+  }
+
+  //Check if str_index2 (index of string2 in ngrams) is a substring of str_index1 (index of string1 in ngrams)
+  public static boolean checkSubstring(ArrayList<ProcessedAnswer> ngrams, int str_index1, int str_index2) 
+  {
+		Pattern p = Pattern.compile("\\b" + ngrams.get(str_index2).content + "\\b");
+		Matcher m = p.matcher(ngrams.get(str_index1).content); 
+		if(m.find() == false)
+			return false;
+		
+		//If string1 comes before string2
+		if(str_index1 < str_index2)
+		{
+			//Add string2's score to string1's score
+			ngrams.get(str_index1).score += ngrams.get(str_index2).score;
+			//Delete string2
+			ngrams.remove(str_index2);
+		}
+		else
+		{
+			ngrams.get(str_index2).content = ngrams.get(str_index1).content;
+			//Add string2's score to string1's score
+			ngrams.get(str_index2).score += ngrams.get(str_index1).score;
+			//Delete string1
+			ngrams.remove(str_index1);
+		}
+		
+		return true;
+  }
+  
+  //Check if str_index2 (index of string2 in ngrams) can be tiled onto the end of str_index1 (index of string1 in ngrams) 
+  public static boolean checkOverlap(ArrayList<ProcessedAnswer> ngrams, int str_index1, int str_index2)
+  {
+	  //Break into two lists of words
+	  ArrayList<String> str1_words = splitIntoWords(ngrams.get(str_index1).content);
+	  ArrayList<String> str2_words = splitIntoWords(ngrams.get(str_index2).content);
+	  
+	  //Tracks the position of the words in the first string when iterating through the second string
+	  int str_pos1 = 0;
+	  
+	  //String to add to the end of string 1
+	  String add_string = "";
+	  
+	  //Loop through first list of words (string 1)
+	  for(int i = 0; i < str1_words.size(); i++)
+	  {
+		  //If the word equals the first word of second string
+		  if(str1_words.get(i).equals(str2_words.get(0)))
+		  {
+			  //Start at the next position of string 1
+			  str_pos1 = i + 1;
+			  
+			  //Loop through all words in the second string
+			  for(int j = 1; j < str2_words.size(); j++)
+			  {
+				  //If the end of the first string has been reached
+				  if(str_pos1 == str1_words.size())
+				  {					
+					//Add the current word in string2, plus any words after to string1 in ngrams
+					for(int k = j; k < str2_words.size(); k++)
+					{
+						add_string += str2_words.get(k);
+						
+						if(k != str2_words.size() - 1)
+							add_string += " ";
+					}
+						
+					//If the first string is before the second string in the array list
+					if(str_index1 < str_index2)
+					{
+						ngrams.get(str_index1).content += add_string;
+						//Set the score of string1 to the sum its score and the score of string2
+						ngrams.get(str_index1).score += ngrams.get(str_index2).score;
+						//Delete string1 in ngrams
+						ngrams.remove(str_index2);
+					}
+					else
+					{
+						//Create a word equal to string1 plus the current word in string2 and any words after
+						add_string = ngrams.get(str_index1).content + " " + add_string;
+						//Set string2 to the new string
+						ngrams.get(str_index2).content = add_string;
+						//Set the score of string2 to the sum its score and the score of string1
+						ngrams.get(str_index2).score += ngrams.get(str_index1).score;
+						//Delete string1 in ngrams
+						ngrams.remove(str_index1);
+					}					
+					return true;
+				  }
+				  
+				  //If the words do not match, break	
+				  if(!str1_words.get(str_pos1).equals(str2_words.get(j)))
+					  break;
+				  
+				  str_pos1++;
+			  }
+		  }
+	  }
+	  
+	  return false;
+  }
+  
+  //Splits a string into a list of words
+  public static ArrayList<String> splitIntoWords(String str)
+  {
+	  ArrayList<String> words = new ArrayList<String>();
+	  int start_pos = 0;
+	  int curr_pos = 0;
+	  String add_word;
+	  
+	  //Loop through every character
+	  for(int i = 0; i <= str.length(); i++)
+	  {
+		  //If a space or end of string is found
+		  if(i == str.length() || str.charAt(i) == ' ')
+		  {
+			  //Add the substring to the list of words
+			  add_word = str.substring(start_pos,curr_pos).replace(" ","");
+			  
+			  if(!add_word.equals(""))
+				  words.add(add_word);
+			  
+			  //Set the start position to the current position (a space) plus one
+			  start_pos = curr_pos + 1;
+		  }
+		  //Increment the current position
+		  curr_pos++;
+	  }
+	  return words;
+  }
 }
 
 class ValueComparator implements Comparator<String> {
@@ -162,7 +333,7 @@ class ValueComparator implements Comparator<String> {
 
     // Note: this comparator imposes orderings that are inconsistent with equals.    
     public int compare(String a, String b) {
-        if (base.get(a) >= base.get(b)) {
+        if (base.get(a).compareTo(base.get(b)) >= 0) {
             return -1;
         } else {
             return 1;
