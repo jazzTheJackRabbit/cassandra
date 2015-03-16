@@ -82,11 +82,11 @@ public class NGramMinder {
 		if(!m.find())
 			return;
 		System.out.println(template);
-		System.out.println(str.substring(m.start(),m.end() - 1)); 
+		//System.out.println(str.substring(m.start(),m.end() - 1)); 
 		  
 		int pre_start = m.start() - 1;
 		int pre_end = m.start() - 1;
-		int post_start = m.end() + 1;
+		int post_start = m.end();
 		int post_end = m.end() + 1;
 		  
 		//Move past any spaces
@@ -159,7 +159,7 @@ public class NGramMinder {
 					if(!(str.contains(";") || str.contains("&")))
 					{
 						ngrams.add(str.substring(post_start, post_end));
-						ngram_holder += " " + str.substring(post_start, post_end);
+						ngram_holder += str.substring(post_start, post_end) + " ";
 						weights.add(weight);
 						ngram_docs.add(path);
 						
