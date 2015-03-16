@@ -22,6 +22,10 @@ import org.apache.lucene.util.Version;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -74,7 +78,7 @@ public class LuceneTest {
 	  //Array list of template queries, which will have all the reformulated queries and their corresponding top fetched documents
 	  ArrayList<TemplateQuery> templateQueries = new ArrayList<TemplateQuery>();
 	  
-	  //Search the files
+	  //Search the files	  
 	  if(useWebSearch){
 		  //init the WebSearcher
 		  WebSearch webSearch = new WebSearch();		  
@@ -94,8 +98,10 @@ public class LuceneTest {
 			  //TODO: Remove this.
 			  break;
 		  }
-//			  List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
-//			  ArrayList<String> ngram_docs = new ArrayList<String>();
+		  
+		  TreeMap<String, Integer> rankedNGrams = sortHashMap(TemplateQuery.ngramCountMap);
+		  System.out.println(rankedNGrams);
+		  
 	  }
 	  else{		  
 		  for(int i = 0; i < templates.size(); i++)
@@ -131,4 +137,35 @@ public class LuceneTest {
 	  //Re-rank n-grams
 	  //Print results
   }
+  
+  public static TreeMap<String, Integer> sortHashMap(HashMap<String, Integer> hashMap){
+	  HashMap<String,Integer> map = hashMap;
+      ValueComparator bvc =  new ValueComparator(map);
+      TreeMap<String,Integer> sorted_map = new TreeMap<String,Integer>(bvc);
+
+      System.out.println("Unsorted N-grams: "+map);
+
+      sorted_map.putAll(map);
+
+      System.out.println("Sorted N-grams: "+sorted_map);
+      
+      return sorted_map;
+  }
+}
+
+class ValueComparator implements Comparator<String> {
+
+    Map<String, Integer> base;
+    public ValueComparator(Map<String, Integer> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with equals.    
+    public int compare(String a, String b) {
+        if (base.get(a) >= base.get(b)) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
+    }
 }
