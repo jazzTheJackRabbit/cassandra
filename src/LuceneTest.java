@@ -39,9 +39,9 @@ public class LuceneTest {
 	  StandardAnalyzer analyzer = new StandardAnalyzer();
 	  
 	  //Index the files
-	  //Indexer fileIndexer = new Indexer(analyzer);
-	  //String indexLocation = fileIndexer.getFiles(br);
-	  String indexLocation = "C:\\Users\\ahoff_000\\Desktop";
+//	  Indexer fileIndexer = new Indexer(analyzer);
+//	  String indexLocation = fileIndexer.getFiles(br);
+	  String indexLocation = "lucene-index/";
 	  
 	  //Get query from user
 	  String query = "Where is the Louvre?";
