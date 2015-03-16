@@ -35,6 +35,8 @@ public class LuceneTest {
 
   public static void main(String[] args) throws IOException, ParseException
   {
+	  boolean useWebSearch = true;
+	  
 	  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 	  StandardAnalyzer analyzer = new StandardAnalyzer();
 	  
@@ -45,6 +47,7 @@ public class LuceneTest {
 	  
 	  //Get query from user
 	  String query = "Where is the Louvre?";
+	  
 	  
 	  //Create templates, their weights, and where to search (i.e. left or right of the template)
 	  ArrayList<String> templates = new ArrayList<String>();
@@ -67,31 +70,59 @@ public class LuceneTest {
 	  //Corresponds to 'docs', stores which side of the template to look for n-grams (0 = both, 1 = left, 2 = right)
 	  ArrayList<Integer> doc_look_locs = new ArrayList<Integer>();
 	  
+	  
+	  //Array list of template queries, which will have all the reformulated queries and their corresponding top fetched documents
+	  ArrayList<TemplateQuery> templateQueries = new ArrayList<TemplateQuery>();
+	  
 	  //Search the files
-	  for(int i = 0; i < templates.size(); i++)
-	  {
-		  search_query.set(0,templates.get(i)); 
-		  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
-		  for(int j = 0; j < foundDocs.size(); j++)
+	  if(useWebSearch){
+		  //init the WebSearcher
+		  WebSearch webSearch = new WebSearch();		  
+		  for(int i = 3; i < templates.size(); i++)
 		  {
-			  docs.add(foundDocs.get(j).get("path"));
-			  doc_templates.add(templates.get(i));
-			  doc_weights.add(weights.get(i));
-			  doc_look_locs.add(look_locs.get(i));
+			  TemplateQuery templateQuery = new TemplateQuery();
+			  
+			  templateQuery.queryString = templates.get(i);
+			  templateQuery.weight = weights.get(i);
+			  templateQuery.topFetchedDocuments = webSearch.getTopSearchSummaries(templateQuery.queryString);
+			  templateQuery.lookLocation = look_locs.get(i);	
+			  
+			  templateQueries.add(templateQuery);
+			  templateQuery.mineNGrams();
+			  
+			  System.out.println("log");
+			  //TODO: Remove this.
+			  break;
 		  }
+//			  List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
+//			  ArrayList<String> ngram_docs = new ArrayList<String>();
 	  }
-	  
-	  //Lists storing the ngrams and their corresponding weights
-	  ArrayList<String> ngrams = new ArrayList<String>();
-	  ArrayList<Double> ngram_weights = new ArrayList<Double>();
-	  //List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
-	  ArrayList<String> ngram_docs = new ArrayList<String>();
-	  
-	  //Get n-grams
-	  NGramMinder.mine(docs, doc_templates, doc_weights, ngrams, ngram_weights, ngram_docs, doc_look_locs);
+	  else{		  
+		  for(int i = 0; i < templates.size(); i++)
+		  {
+			  search_query.set(0,templates.get(i)); 
+			  foundDocs = TemplateSearcher.SearchFiles(search_query, indexLocation, analyzer);
+			  for(int j = 0; j < foundDocs.size(); j++)
+			  {
+				  docs.add(foundDocs.get(j).get("path"));
+				  doc_templates.add(templates.get(i));
+				  doc_weights.add(weights.get(i));
+				  doc_look_locs.add(look_locs.get(i));
+			  }
+		  }
 		  
-	  for(int i = 0; i < ngram_weights.size(); i++)
-		  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
+		  //Lists storing the ngrams and their corresponding weights
+		  ArrayList<String> ngrams = new ArrayList<String>();
+		  ArrayList<Double> ngram_weights = new ArrayList<Double>();
+		  //List of documents paths associated to each ngram (so we don't add weights for n-grams found in the same document)
+		  ArrayList<String> ngram_docs = new ArrayList<String>();
+		  
+		  //Get n-grams
+		  NGramMinder.mine(docs, doc_templates, doc_weights, ngrams, ngram_weights, ngram_docs, doc_look_locs);
+			  
+		  for(int i = 0; i < ngram_weights.size(); i++)
+			  System.out.println(ngrams.get(i) + ": " + ngram_weights.get(i));
+	  }	  
 	  
 	  //Combine and weight n-grams
 	  //Reweight n-grams based on question rules

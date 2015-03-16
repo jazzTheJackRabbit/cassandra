@@ -4,6 +4,8 @@ public class SearchResult extends Object {
 	public String Description;
 	public String DisplayUrl;
 	public String Url;
+	public String filename;
+	public int rank;
 	
 	public SearchResult() {
 		// TODO Auto-generated constructor stub
