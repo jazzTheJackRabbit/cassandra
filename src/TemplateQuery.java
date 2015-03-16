@@ -123,6 +123,9 @@ public class TemplateQuery {
 		//Count of words added
 		int count = 0;
 		 
+		//Marks whether to move character index counter forward one space or not (i.e. do not include a " " in an n-gram)
+		int forward_space;
+				
 		//Create 1, 2 and 3 grams
 		String ngram_holder = "";
 		
@@ -134,42 +137,35 @@ public class TemplateQuery {
 			while(pre_start >= 0 && count < 3)
 			{
 				if(pre_start == 0 || str.charAt(pre_start) == ' ')
-				{
-					if(!(str.contains(";") || str.contains("&")))
+				{						
+					if(pre_start == 0 || str.charAt(pre_start) == ' ')
 					{
-						
+						//Start 1 space earlier if at a space
+						forward_space = 0;
 						if(str.charAt(pre_start) == ' ')
-						{
-							processedAnswer = new ProcessedAnswer(str.substring(pre_start + 1, pre_end));							
-							ngram_holder = str.substring(pre_start + 1, pre_end) + " " + ngram_holder;
-						}
-						else
-						{
-							processedAnswer = new ProcessedAnswer(str.substring(pre_start, pre_end));	
-							ngram_holder = str.substring(pre_start, pre_end) + " " + ngram_holder;
-						}
+							forward_space = 1;
 						
-						processedAnswer.weight = weight;
-						templateQuery.topProcessedAnswers.add(processedAnswer);
-						this.addNGramToHashMap(processedAnswer);
-						
-//								ngram_docs.add(path);
-						
-						if(count != 0)
+						processedAnswer = new ProcessedAnswer(str.substring(pre_start + forward_space, pre_end).replace(" ",""));
+						if(!checkStopWord(processedAnswer.content))
 						{
-							processedAnswer = new ProcessedAnswer(ngram_holder);
+							ngram_holder = processedAnswer.content + " " + ngram_holder;
 							processedAnswer.weight = weight;
 							templateQuery.topProcessedAnswers.add(processedAnswer);
 							this.addNGramToHashMap(processedAnswer);
-//									ngram_docs.add(path);
 							
-						}
+							if(count != 0)
+							{
+								processedAnswer = new ProcessedAnswer(ngram_holder);
+								processedAnswer.weight = weight;
+								templateQuery.topProcessedAnswers.add(processedAnswer);
+								this.addNGramToHashMap(processedAnswer);
+							}
+						}					
+						count++;
+						pre_end = pre_start;
 					}
-					
-					count++;
-					pre_end = pre_start;
-				}
-				pre_start--;		  
+					pre_start--;	
+				}  	  
 			}  
 		}
 		
@@ -184,24 +180,21 @@ public class TemplateQuery {
 			{
 				if(post_end == str.length() - 1 || str.charAt(post_end) == ' ')
 				{
-					if(!(str.contains(";") || str.contains("&")))
+					processedAnswer = new ProcessedAnswer(str.substring(post_start, post_end));
+					processedAnswer.weight = weight;
+					templateQuery.topProcessedAnswers.add(processedAnswer);
+					this.addNGramToHashMap(processedAnswer);
+					ngram_holder += str.substring(post_start, post_end) + " ";						
+//							ngram_docs.add(path);
+						
+					if(count != 0)
 					{
-						processedAnswer = new ProcessedAnswer(str.substring(post_start, post_end));
+						processedAnswer = new ProcessedAnswer(ngram_holder);
 						processedAnswer.weight = weight;
 						templateQuery.topProcessedAnswers.add(processedAnswer);
 						this.addNGramToHashMap(processedAnswer);
-						ngram_holder += str.substring(post_start, post_end) + " ";						
 //								ngram_docs.add(path);
-						
-						if(count != 0)
-						{
-							processedAnswer = new ProcessedAnswer(ngram_holder);
-							processedAnswer.weight = weight;
-							templateQuery.topProcessedAnswers.add(processedAnswer);
-							this.addNGramToHashMap(processedAnswer);
-//									ngram_docs.add(path);
 							
-						}
 					}
 					
 					count++;
@@ -224,4 +217,12 @@ public class TemplateQuery {
 			TemplateQuery.ngramKeys.add(key);
 		}
 	}
+	
+	public static boolean checkStopWord(String str)
+	{
+		if(str == "is" || str == "the" || str == "in" || str == "a")
+			return true;
+		return false;
+	}
+	
 }
