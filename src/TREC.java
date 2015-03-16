@@ -42,10 +42,16 @@ public class TREC {
 		    for (Element e : doc.select("target")) {
 		    	Elements questionsXML = e.getElementsByTag("q");
 		    	Target target = new Target();
+		    	target.targetContext = e.attr("text");
 		    	for(Element question : questionsXML){
-		    		if(question.attr("type").contains("FACTOID")){
-		    			System.out.println(question.text());		    			
-		    			target.questions.add(question.text());		    			
+		    		if(question.attr("type").contains("FACTOID")){		    			
+		    			String questionString = question.text().toLowerCase();
+		    			
+		    			String coreferenceResolvedQuestion = naiveCoreferenceResolution(target, questionString);
+    					System.out.println(coreferenceResolvedQuestion);		    			
+
+		    			target.questions.add(coreferenceResolvedQuestion);
+		    			target.unresolvedQuestions.add(questionString);
 		    		}
 		    	}		      
 		    	targets.add(target);
@@ -60,5 +66,56 @@ public class TREC {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+	
+	public static String naiveCoreferenceResolution(Target target,String question){		
+		String[] pronounsList = {"he","she","they","it","his","him","her","its","hers","their","them"};
+		StringBuilder coreferenceResolvedQuestion = null;
+		for(String pronoun : pronounsList){
+			String[] permutationsOfPronounInString = {" "+pronoun+" "," "+pronoun+"."," "+pronoun+","," "+pronoun+"?"};
+			for(String permutation : permutationsOfPronounInString){
+				if(question.contains(permutation)){
+					
+					if(coreferenceResolvedQuestion == null)
+						coreferenceResolvedQuestion = new StringBuilder("");
+					int positionToStartReplacementAt = question.indexOf(permutation);
+					int positionToEndReplacementAt = positionToStartReplacementAt + permutation.length();
+					
+					coreferenceResolvedQuestion.append(question.substring(0, positionToStartReplacementAt));
+					coreferenceResolvedQuestion.append(" "+target.targetContext);
+					if(positionToEndReplacementAt != question.length() - 1){
+						coreferenceResolvedQuestion.append(" "+question.substring(positionToEndReplacementAt,question.length()));
+					}						
+					
+					break;
+				}	
+			}
+			
+			if(coreferenceResolvedQuestion != null){
+				break;
+			}
+			else{
+				String permutation = pronoun+" ";
+				if(question.indexOf(permutation) == 0){
+					
+					if(coreferenceResolvedQuestion == null)
+						coreferenceResolvedQuestion = new StringBuilder("");					
+					int positionToEndReplacementAt = permutation.length();
+										
+					coreferenceResolvedQuestion.append(target.targetContext);
+					if(positionToEndReplacementAt != question.length() - 1){
+						coreferenceResolvedQuestion.append(" "+question.substring(positionToEndReplacementAt,question.length()));
+					}						
+					
+					break;
+				}	
+			}
+		}
+		if(coreferenceResolvedQuestion == null){
+			return question;
+		}
+		else{
+			return coreferenceResolvedQuestion.toString();
+		}		
 	}
 }
