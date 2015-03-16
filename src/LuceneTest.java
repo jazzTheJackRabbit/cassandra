@@ -38,7 +38,7 @@ import org.apache.commons.io.FileUtils;
  * based on the input of the user.
  */
 public class LuceneTest {
-
+	
   public static void main(String[] args) throws IOException, ParseException
   {
 	  boolean useWebSearch = true;
@@ -166,20 +166,31 @@ public class LuceneTest {
 	  for(int i = 0; i < ngrams.size(); i++)
 	  {
 		  //Loop through every other key
-		  for(int j = 0; j < ngrams.size(); j++)
+		  for(int j = i+1; j < ngrams.size(); j++)
 		  {	  
 			  //Check if either string is a subset of the other
-			  if(i < ngrams.size() && j < ngrams.size())
-				  checkSubstring(ngrams,i,j);
-			  
-			  if(i < ngrams.size() && j < ngrams.size())
-				  checkSubstring(ngrams,j,i);
-			  
+			  if(checkSubstring(ngrams,i,j))
+			  {
+				  j = i;
+				  continue;
+			  }
+			  if(checkSubstring(ngrams,j,i))
+			  {
+				  j = i;
+				  continue;
+			  }
+			 			  
 			  //Check if there is overlap within the strings
-			  if(i < ngrams.size() && j < ngrams.size())
-				  checkOverlap(ngrams,i,j);
-			  if(i < ngrams.size() && j < ngrams.size())
-				  checkOverlap(ngrams,j,i);  
+			  if(checkOverlap(ngrams,i,j))
+			  {
+				  j = i;
+				  continue;
+			  }
+			  if(checkOverlap(ngrams,j,i))
+			  {
+				  j = i;
+				  continue;
+			  }  
 		  }
 	  }
 	  
@@ -197,6 +208,9 @@ public class LuceneTest {
   //Check if str_index2 (index of string2 in ngrams) is a substring of str_index1 (index of string1 in ngrams)
   public static boolean checkSubstring(ArrayList<ProcessedAnswer> ngrams, int str_index1, int str_index2) 
   {
+	  	//if(ngrams.get(str_index2).content.equals("located in paris,"))//ngrams.get(str_index2).content.equals("paris,") && 
+	  		//System.out.println("YOUNG MONEY");
+	  
 		Pattern p = Pattern.compile("\\b" + ngrams.get(str_index2).content + "\\b");
 		Matcher m = p.matcher(ngrams.get(str_index1).content); 
 		if(m.find() == false)
@@ -249,7 +263,7 @@ public class LuceneTest {
 			  {
 				  //If the end of the first string has been reached
 				  if(str_pos1 == str1_words.size())
-				  {					
+				  {					  
 					//Add the current word in string2, plus any words after to string1 in ngrams
 					for(int k = j; k < str2_words.size(); k++)
 					{
@@ -271,7 +285,7 @@ public class LuceneTest {
 					else
 					{
 						//Create a word equal to string1 plus the current word in string2 and any words after
-						add_string = ngrams.get(str_index1).content + " " + add_string;
+						add_string = ngrams.get(str_index1).content + add_string;
 						//Set string2 to the new string
 						ngrams.get(str_index2).content = add_string;
 						//Set the score of string2 to the sum its score and the score of string1
@@ -290,7 +304,6 @@ public class LuceneTest {
 			  }
 		  }
 	  }
-	  
 	  return false;
   }
   
