@@ -252,17 +252,17 @@ public class TemplateSearcher {
 		//Rove "to be" in several tenses
 		for(int i = 0; i < template1.length(); i++)
 		{
-			if(template1.charAt(i) == ' ' || i == template1.length() - 1)
+			if(template1.charAt(i) == ' ' || i == template1.length())
 			{
-				add_string = template1.substring(0,i) + " is " + template1.substring(i, template1.length());
+				add_string = template1.substring(0,i) + " is" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
 				look_loc.add(2);
-				add_string = template1.substring(0,i) + " was " + template1.substring(i, template1.length());
+				add_string = template1.substring(0,i) + " was" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
 				look_loc.add(2);
-				add_string = template1.substring(0,i) + " will be " + template1.substring(i, template1.length());
+				add_string = template1.substring(0,i) + " will be" + template1.substring(i, template1.length());
 				templates.add(add_string);
 				weights.add(1.0);
 				look_loc.add(2);
@@ -273,7 +273,7 @@ public class TemplateSearcher {
 		String template2 = query;
 		for(int i = 0; i < template2.length(); i++)
 		{
-			if(template2.charAt(i) == ' ' && i != template2.length() - 1)
+			if(template2.charAt(i) == ' ' && i != template2.length())
 			{
 				template2 = template2.substring(0,i) + " AND" + template2.substring(i, template2.length());
 				i += 5;

@@ -54,7 +54,7 @@ public class LuceneTest {
 			for (int queryIndex = 0; queryIndex <= querySetForEachTarget.size(); queryIndex++) {
 				// String primaryUnformulatedQuery =
 				// querySetForEachTarget.get(queryIndex);
-				String primaryUnformulatedQuery = "How many in one dozen?";
+				String primaryUnformulatedQuery = "what newspaper does paul krugman write?";
 				reformulateQueryAndFindAnswers(primaryUnformulatedQuery,
 						ngramCountMap, ngramKeys);
 				break;
