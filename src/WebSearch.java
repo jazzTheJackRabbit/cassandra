@@ -25,10 +25,10 @@ public class WebSearch {
     public ArrayList<SearchResult> getTopSearchSummaries(String query) {    	
     	
     	//We have can query BING only 5000 times a month. I've saved a sample JSON response in getJSONSearchResults  
-    	String response = getJSONSearchResults();
+//    	String response = getJSONSearchResults();
     	
     	//Uncomment this line if you want to actually go out to the network and get search results.
-//    	String response = search(query);    	
+    	String response = search(query);    	
     	this.jsonResponse = response;
     	
     	Gson gson = new Gson();  

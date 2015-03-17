@@ -26,6 +26,9 @@ public class TemplateSearcher {
 		//Convert string to all lowercase to avoid case sensitivity issues
 		query = query.toLowerCase();
 		
+		query = query.replace("for which","what");
+		query = query.replace("which","what");
+		
 		//Find the roving word
 		String rove_word = findRovingWord(query);
 		

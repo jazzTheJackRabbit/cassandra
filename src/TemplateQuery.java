@@ -25,7 +25,7 @@ public class TemplateQuery {
 	};
 	
 	//These are the templates which are essentially the queries for the search engine.
-	public TemplateQuery(){
+	public TemplateQuery(HashMap<String, Integer> ngramCountMap, ArrayList<String> ngramKeys){
 		this.queryString = "";
 		this.weight = 0.0f;
 		this.lookLocation = 0;
@@ -33,8 +33,8 @@ public class TemplateQuery {
 		this.topFetchedDocuments = new ArrayList<SearchResult>();							
 		this.topProcessedAnswers = new ArrayList<ProcessedAnswer>();
 		
-		TemplateQuery.ngramCountMap = new HashMap<String, Integer>();
-		TemplateQuery.ngramKeys = new ArrayList<String>();
+		TemplateQuery.ngramCountMap = ngramCountMap;
+		TemplateQuery.ngramKeys = ngramKeys;
 	}
 	
 	public void mineNGrams(){
