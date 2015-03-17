@@ -1,1 +1,14 @@
-/*.class
+/org/
+/Indexer.class
+/LuceneTest.class
+/NGramMinder.class
+/NGramMiner.class
+/ProcessedAnswer.class
+/RetrievedDocument.class
+/SearchResult.class
+/TREC.class
+/Target.class
+/TemplateQuery.class
+/TemplateSearcher.class
+/ValueComparator.class
+/WebSearch.class

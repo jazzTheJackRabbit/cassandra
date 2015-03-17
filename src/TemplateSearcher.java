@@ -108,7 +108,10 @@ public class TemplateSearcher {
 		//Template 1: Existential there
 		String template1 = query.replace("how many ","");
 		template1 = template1.replace("there","");
-		template1 = template1.replace(rove_word + " ", "");
+		
+		if(!rove_word.equals(""))
+			template1 = template1.replace(rove_word + " ", "");
+		
 		template1 = "AND " + template1;
 		template1 = "there " + template1;
 		template1 = template1.replace("  ", " ");		

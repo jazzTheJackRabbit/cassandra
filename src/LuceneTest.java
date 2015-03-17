@@ -54,7 +54,7 @@ public class LuceneTest {
 			for (int queryIndex = 0; queryIndex <= querySetForEachTarget.size(); queryIndex++) {
 				// String primaryUnformulatedQuery =
 				// querySetForEachTarget.get(queryIndex);
-				String primaryUnformulatedQuery = "Where is the Louvre?";
+				String primaryUnformulatedQuery = "How many in one dozen?";
 				reformulateQueryAndFindAnswers(primaryUnformulatedQuery,
 						ngramCountMap, ngramKeys);
 				break;
@@ -115,8 +115,7 @@ public class LuceneTest {
 
 				templateQuery.queryString = templates.get(i);
 				templateQuery.weight = weights.get(i);
-				templateQuery.topFetchedDocuments = webSearch
-						.getTopSearchSummaries(templateQuery.queryString);
+				templateQuery.topFetchedDocuments = webSearch.getTopSearchSummaries(templateQuery.queryString);
 				templateQuery.lookLocation = look_locs.get(i);
 
 				templateQueries.add(templateQuery);
@@ -192,8 +191,7 @@ public class LuceneTest {
 
 		// Store all keys and scores (NOT WEIGHTS) in ngrams
 		for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
-			ProcessedAnswer add_processedAnswer = new ProcessedAnswer(
-					entry.getKey());
+			ProcessedAnswer add_processedAnswer = new ProcessedAnswer(entry.getKey());
 			add_processedAnswer.score = entry.getValue();
 			ngrams.add(add_processedAnswer);
 		}
