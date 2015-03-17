@@ -54,7 +54,12 @@ public class LuceneTest {
 			for (int queryIndex = 0; queryIndex <= querySetForEachTarget.size(); queryIndex++) {
 				// String primaryUnformulatedQuery =
 				// querySetForEachTarget.get(queryIndex);
-				String primaryUnformulatedQuery = "how many eggs in a dozen?";
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		        System.out.print("Enter your Question...(or type TREC to pick a TREC query)\n:");		        
+				String primaryUnformulatedQuery = br.readLine();				
+				if(primaryUnformulatedQuery.equals("TREC")){
+					primaryUnformulatedQuery = querySetForEachTarget.get((int) Math.round(Math.random()*(querySetForEachTarget.size()-1)));
+				}
 				reformulateQueryAndFindAnswers(primaryUnformulatedQuery,
 						ngramCountMap, ngramKeys);
 				break;
@@ -129,7 +134,7 @@ public class LuceneTest {
 			TreeMap<String, Integer> rankedNGrams = sortHashMap(TemplateQuery.ngramCountMap);
 			System.out.println(rankedNGrams);
 			HashMap<String, Double> tiledNGrams = tileNGrams(rankedNGrams);
-			System.out.println("Tiled N-Grams: " + tiledNGrams);
+			System.out.println("\nTiled N-Grams: " + tiledNGrams);
 
 		} else {
 			// for(int i = 0; i < templates.size(); i++)
@@ -174,12 +179,15 @@ public class LuceneTest {
 		HashMap<String, Integer> map = hashMap;
 		ValueComparator bvc = new ValueComparator(map);
 		TreeMap<String, Integer> sorted_map = new TreeMap<String, Integer>(bvc);
-
-		System.out.println("Unsorted N-grams: " + map);
+		
+		System.out.println("\n******************************************\n");
+		System.out.println("RESULTS");
+		System.out.println("\n******************************************\n");
+		System.out.println("\nUnsorted N-grams: " + map);
 
 		sorted_map.putAll(map);
 
-		System.out.println("Sorted N-grams: " + sorted_map);
+		System.out.println("\nSorted N-grams: " + sorted_map);
 
 		return sorted_map;
 	}
@@ -241,8 +249,7 @@ public class LuceneTest {
 		// &&
 		// System.out.println("YOUNG MONEY");
 
-		Pattern p = Pattern.compile("\\b" + ngrams.get(str_index2).content
-				+ "\\b");
+		Pattern p = Pattern.compile("\\b" + ngrams.get(str_index2).content + "\\b");
 		Matcher m = p.matcher(ngrams.get(str_index1).content);
 		if (m.find() == false)
 			return false;

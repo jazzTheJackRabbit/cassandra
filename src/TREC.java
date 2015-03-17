@@ -42,8 +42,7 @@ public class TREC {
 		    		if(question.attr("type").contains("FACTOID")){		    			
 		    			String questionString = question.text().toLowerCase();
 		    			
-		    			String coreferenceResolvedQuestion = this.naiveCoreferenceResolution(target, questionString);
-    					System.out.println(coreferenceResolvedQuestion);		    			
+		    			String coreferenceResolvedQuestion = this.naiveCoreferenceResolution(target, questionString);    						    		
 
 		    			target.questions.add(coreferenceResolvedQuestion);
 		    			target.unresolvedQuestions.add(questionString);
