@@ -146,37 +146,34 @@ public class TemplateQuery {
 			while(pre_start >= 0 && count < 3)
 			{
 				if(pre_start == 0 || str.charAt(pre_start) == ' ')
-				{						
-					if(pre_start == 0 || str.charAt(pre_start) == ' ')
+				{		
+					//Start 1 space earlier if at a space
+					forward_space = 0;
+					if(str.charAt(pre_start) == ' ')
+						forward_space = 1;
+					
+					processedAnswer = new ProcessedAnswer(str.substring(pre_start + forward_space, pre_end).replace(" ",""));
+					ngram_holder = processedAnswer.content + " " + ngram_holder;
+					if(!checkStopWord(processedAnswer.content))
 					{
-						//Start 1 space earlier if at a space
-						forward_space = 0;
-						if(str.charAt(pre_start) == ' ')
-							forward_space = 1;
-						
-						processedAnswer = new ProcessedAnswer(str.substring(pre_start + forward_space, pre_end).replace(" ",""));
-						ngram_holder = processedAnswer.content + " " + ngram_holder;
-						if(!checkStopWord(processedAnswer.content))
-						{
-							processedAnswer.weight = weight;
-							templateQuery.topProcessedAnswers.add(processedAnswer);
-							this.addNGramToHashMap(processedAnswer);
+						processedAnswer.weight = weight;
+						templateQuery.topProcessedAnswers.add(processedAnswer);
+						this.addNGramToHashMap(processedAnswer);
 
-						}		
-						
-						if(count != 0)
-						{
-							processedAnswer = new ProcessedAnswer(ngram_holder);
-							processedAnswer.weight = weight;
-							templateQuery.topProcessedAnswers.add(processedAnswer);
-							this.addNGramToHashMap(processedAnswer);
-						}	
-						
-						count++;
-						pre_end = pre_start;
-					}
-					pre_start--;	
-				}  	  
+					}		
+					
+					if(count != 0)
+					{
+						processedAnswer = new ProcessedAnswer(ngram_holder);
+						processedAnswer.weight = weight;
+						templateQuery.topProcessedAnswers.add(processedAnswer);
+						this.addNGramToHashMap(processedAnswer);
+					}	
+					
+					count++;
+					pre_end = pre_start;
+				}  	 
+				pre_start--;
 			}  
 		}
 		
